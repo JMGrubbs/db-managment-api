@@ -41,22 +41,21 @@ services:
 
   database-managment-api:
     build:
-      context: ./db-managment-api
+      context: ./app
       dockerfile: Dockerfile
-    command: sh -c "uvicorn app:app --host 0.0.0.0 --port 8000 --reload"
+    working_dir: /app
+    command: python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
-      - ./db-managment-api/.env
+      - ./app/.env
     ports:
       - 8000:8000
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./db-managment-api:/app
-    environment:
-      - DATABASE_URL=${POSTGRES_DB_URL}
+      - ./app:/app
     networks:
-      - popacta-network
+      - db-network
 
 volumes:
   db_redis_cache:
