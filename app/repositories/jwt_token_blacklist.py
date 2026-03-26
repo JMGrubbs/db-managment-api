@@ -1,49 +1,26 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User
-from core.security import verify_password
+from models.jwt_token_blacklist import JwtTokenBlacklist
+from datetime import datetime, timedelta
 
-async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
+async def is_token_blacklisted_db(session: AsyncSession, jti: str) -> bool:
     result = await session.execute(
-        select(User).where(User.id == user_id)
+        select(JwtTokenBlacklist).where(JwtTokenBlacklist.token == jti)
     )
-    return result.scalar_one_or_none()
+    if result.scalar() is not None:
+        return True
+    return False
 
-async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
+async def load_recent_blacklisted_tokens(session: AsyncSession, minutes: int = 60) -> list[str]:
+    cutoff_time = datetime.utcnow() - timedelta(minutes=minutes)
     result = await session.execute(
-        select(User).where(User.email == email)
+        select(JwtTokenBlacklist.token).where(JwtTokenBlacklist.blacklisted_at >= cutoff_time)
     )
-    return result.scalar_one_or_none()
+    return [row[0] for row in result.fetchall()]
 
-async def create_user(session: AsyncSession, email: str, hashed_password: str) -> User:
-    new_user = User(email=email, hashed_password=hashed_password)
-    session.add(new_user)
-    await session.commit()
-    await session.refresh(new_user)
-    return new_user
-
-async def update_user(session: AsyncSession, user: User) -> User:
-    session.add(user)
-    await session.commit()
-    await session.refresh(user)
-    return user
-
-async def delete_user(session: AsyncSession, user: User) -> bool:
-    await session.delete(user)
+async def insert_blacklisted_token(session: AsyncSession, jti: str) -> bool:
+    print(f"Inserting blacklisted token with jti: {jti}", flush=True)
+    new_entry = JwtTokenBlacklist(token=jti, blacklisted_at=datetime.utcnow())
+    session.add(new_entry)
     await session.commit()
     return True
-
-async def check_user_exists(session: AsyncSession, email: str) -> bool:
-    result = await session.execute(
-        select(User).where(User.email == email)
-    )
-    return result.scalar_one_or_none() is not None
-
-async def login_user(session: AsyncSession, email: str, password: str) -> User | None:
-    user = await get_user_by_email(session, email)
-    if user:
-        verified_pass = verify_password(plain_password=password, hashed_password=user.hashed_password) if user else False
-        if verified_pass:
-            return user
-        return None
-    return None

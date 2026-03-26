@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
-
+from uuid import uuid4
 import jwt
+
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 
@@ -23,8 +24,10 @@ def create_access_token(
     payload: dict[str, Any] = {
         "sub": subject,
         "exp": expire,
+        "iat": datetime.now(timezone.utc),
+        "jti": str(uuid4()),
     }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return str(jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM))
 
 
 def decode_access_token(token: str) -> dict[str, Any]:

@@ -28,3 +28,10 @@ class UserLogin(BaseModel):
     @field_validator("email", mode="before")
     def normalize_email(cls, email: EmailStr) -> str:
         return email.strip().lower()
+
+class DeleteUser(BaseModel):
+    email: EmailStr
+
+    @field_validator("email", mode="before")
+    def normalize_email(cls, email: EmailStr) -> str:
+        return email.strip().lower()

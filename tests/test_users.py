@@ -147,23 +147,23 @@ class UserTests(MCPTestBase):
         test_cases = [
             {
                 "name": "invalid_email",
-                "data": {"email": "invalid-email", "password": "ValidPass123!"},
-                "expected_failure": True
+                "data": {"email": "invalid-email", "password": "ValidPass123!", "is_test": True},
+                "expected_failure": True,
             },
             {
                 "name": "weak_password_short",
-                "data": {"email": "test1@example.com", "password": "123"},
-                "expected_failure": True
+                "data": {"email": "test1@example.com", "password": "123", "is_test": True},
+                "expected_failure": True,
             },
             {
                 "name": "weak_password_no_special",
-                "data": {"email": "test2@example.com", "password": "TestPass123"},
-                "expected_failure": True
+                "data": {"email": "test2@example.com", "password": "TestPass123", "is_test": True},
+                "expected_failure": True,
             },
             {
                 "name": "valid_user",
-                "data": {"email": "validtest@example.com", "password": "ValidTest123!"},
-                "expected_failure": False
+                "data": {"email": "validtest@example.com", "password": "ValidTest123!", "is_test": True},
+                "expected_failure": False,
             }
         ]
 

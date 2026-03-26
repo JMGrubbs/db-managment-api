@@ -11,7 +11,10 @@ async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
 
 async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
     result = await session.execute(
-        select(User).where(User.email == email)
+        select(User).where(
+            User.email == email
+            and User.is_active == True
+        )
     )
     return result.scalar_one_or_none()
 
@@ -33,6 +36,13 @@ async def delete_user(session: AsyncSession, user: User) -> bool:
     await session.commit()
     return True
 
+async def deactivate_user(session: AsyncSession, user: User) -> User:
+    user.is_active = False
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user
+
 async def check_user_exists(session: AsyncSession, email: str) -> bool:
     result = await session.execute(
         select(User).where(User.email == email)
@@ -47,3 +57,15 @@ async def login_user(session: AsyncSession, email: str, password: str) -> User |
             return user
         return None
     return None
+
+async def is_user_admin(session: AsyncSession, user_id: int) -> bool:
+    user = await get_user_by_id(session, user_id)
+    return user.is_admin if user else False
+
+async def make_user_admin(session: AsyncSession, user: User) -> User:
+    if not user.is_admin:
+        user.is_admin = True
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+    return user
