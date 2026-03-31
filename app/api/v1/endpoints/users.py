@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any
 
 from auth.dependencies import get_current_active_user, blacklist_current_token
 from repositories.user import (
@@ -71,8 +72,11 @@ async def login_route(
 @router.get("/token-check")
 async def token_check_route(
     current_user: User = Depends(get_current_active_user),
-) -> dict[str, str]:
-    return {"message": f"Token is valid for user {current_user.email}"}
+) -> dict[str, Any]:
+    return {
+        "message": f"Token is valid for user {current_user.email}",
+        "status": True,
+    }
 
 
 @router.delete("/delete")
@@ -121,3 +125,10 @@ async def logout_route(
     revoked: bool = Depends(blacklist_current_token),
 ) -> dict[str, str]:
     return {"message": "Successfully logged out"}
+
+
+@router.get("/is-admin")
+async def is_admin_route(
+    current_user: User = Depends(get_current_active_user),
+) -> dict[str, bool]:
+    return {"is_admin": current_user.is_admin}

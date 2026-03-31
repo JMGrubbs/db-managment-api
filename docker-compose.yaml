@@ -39,7 +39,7 @@ services:
     networks:
       - db-network
 
-  database-managment-api:
+  api:
     build:
       context: ./app
       dockerfile: Dockerfile
@@ -62,7 +62,7 @@ services:
     networks:
       - db-network
 
-  database-managment-mcp:
+  mcp:
     build:
       context: ./mcp
       dockerfile: Dockerfile
@@ -74,7 +74,7 @@ services:
     volumes:
       - ./mcp:/mcp
     depends_on:
-      database-managment-api:
+      api:
         condition: service_healthy
     command: python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload
     networks:
