@@ -1,3 +1,4 @@
+import uuid
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
@@ -56,11 +57,11 @@ async def get_current_user(
         if sub is None:
             raise credentials_exception
 
-        user_id = int(sub)
+        user_id: str = str(sub)
     except Exception:
         raise credentials_exception
 
-    user = await get_user_by_id(session, user_id)
+    user = await get_user_by_id(session, str(user_id))
     if user is None:
         raise credentials_exception
 

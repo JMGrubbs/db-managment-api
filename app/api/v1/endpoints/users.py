@@ -21,7 +21,7 @@ router = APIRouter(tags=["users"])
 async def create_new_user_route(
     new_user: UserCreate,
     session: AsyncSession = Depends(get_session),
-) -> dict[str, str]:
+) -> dict[str, bool]:
 
     if await check_user_exists(session, new_user.email):
         return {"message": "User with this email already exists"}

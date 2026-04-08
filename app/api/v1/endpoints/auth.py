@@ -38,7 +38,7 @@ async def login_route(
 @router.get("/me")
 async def read_me_route(
     current_user: User = Depends(get_current_active_user),
-) -> dict[str, str | bool | int]:
+) -> dict[str, Any]:
     return {
         "id": current_user.id,
         "email": current_user.email,
