@@ -1,8 +1,8 @@
-"""adding users and token-blacklist
+"""creating users and token blacklist
 
-Revision ID: 9e3da12f393b
+Revision ID: 63bc040c9c18
 Revises: 
-Create Date: 2026-03-31 20:47:28.288858
+Create Date: 2026-04-08 17:55:24.678596
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '9e3da12f393b'
+revision: str = '63bc040c9c18'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -30,7 +30,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_auth_jwt_token_blacklist_token'), 'jwt_token_blacklist', ['token'], unique=True, schema='auth')
     op.create_table('users',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('hashed_password', sa.String(length=255), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),

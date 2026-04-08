@@ -35,7 +35,10 @@ async def create_new_user_route(
         hashed_password=new_user.password,
     )
 
-    return {"message": f"User {newly_created_user.email} created successfully"}
+    if not newly_created_user:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+
+    return {"ok": True}
 
 
 @router.delete("/delete")
